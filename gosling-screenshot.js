@@ -57,8 +57,6 @@ async function screenshot(spec, opts) {
 	let page = await browser.newPage();
 	await page.goto(`file://${tmpfile}`, { waitUntil: "networkidle0" });
 	let component = await page.waitForSelector(".gosling-component");
-
-	// could exte
 	let buffer = await component.screenshot(opts);
 
 	await Promise.all([
@@ -73,10 +71,9 @@ let input = process.argv[2];
 let output = process.argv[3];
 
 if (!input || !output) {
-	console.error("Usage: node gosling-screenshot.js <input.json> <output.{png,jpeg}>");
+	console.error("Usage: node gosling-screenshot.js <input.json> <output.{png,jpeg,webp}>");
 	process.exit(1);
 }
 
 let spec = await fs.readFile(input, "utf8");
-let buffer = await screenshot(spec, { type: "jpeg", quality: 100 });
-await fs.writeFile(output, buffer);
+await screenshot(spec, { path: output });

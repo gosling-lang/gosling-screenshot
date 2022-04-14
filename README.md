@@ -1,7 +1,7 @@
 # gosling-screenshot
 
-```
-node gosling-screenshot.js example.json example.jpeg
+```bash
+node gosling-screenshot.js example.json example.jpeg # or .png/.webp
 icat example.jpeg
 ```
 
