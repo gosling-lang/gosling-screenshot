@@ -1,10 +1,5 @@
 import puppeteer from "puppeteer";
-
 import * as fs from "node:fs/promises";
-import * as path from "node:path";
-import * as url from "node:url";
-
-let __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 /**
  * @param {string} spec
@@ -42,32 +37,17 @@ function html(spec, {
  * @returns {Promise<Buffer>}
  */
 async function screenshot(spec, opts) {
-	// TODO: 2022-04-14
-	// Should be able to avoid writing to disk all together via:
-	//
-	// let page = await browser.newPage();
-	// await page.setContent(html(spec))
-	//
-	// but "pubsub-es" dependency of higlass throws an error due to missing origin in this case.
-	let tmpfile = path.join(__dirname, "tmp.html");
-	await fs.writeFile(tmpfile, html(spec));
-
 	let browser = await puppeteer.launch({
 		headless: true,
 		args: ["--use-gl=swiftshader"], // more consistent rendering of transparent elements
-		userDataDir: path.join(__dirname, ".cache"),
 	});
 
 	let page = await browser.newPage();
-	await page.goto(`file://${tmpfile}`, { waitUntil: "networkidle0" });
+	await page.setContent(html(spec), { waitUntil: "networkidle0" });
 	let component = await page.waitForSelector(".gosling-component");
 	let buffer = await component.screenshot(opts);
 
-	await Promise.all([
-		fs.unlink(tmpfile),
-		browser.close(),
-	]);
-
+	await browser.close();
 	return buffer;
 }
 
