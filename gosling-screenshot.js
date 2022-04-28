@@ -62,4 +62,6 @@ if (!input || !output) {
 }
 
 let spec = await fs.readFile(input, "utf8");
+// to use escape characters as pure text (e.g., separator: '\t') in `.setContent()`
+spec = spec.replaceAll('\\', '\\\\');
 await screenshot(spec, { path: output });
