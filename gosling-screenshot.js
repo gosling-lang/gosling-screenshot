@@ -7,28 +7,32 @@ import * as fs from "node:fs/promises";
  * @returns {string}
  */
 function html(spec, {
-	reactVersion = "17",
+	reactVersion = "18",
 	pixijsVersion = "6",
-	higlassVersion = "1.11",
-	goslingVersion = "0.9.17",
+	higlassVersion = "1.13",
+	goslingVersion = "0.17.0",
 } = {}) {
-	let baseUrl = "https://unpkg.com";
-	return `\
-<!DOCTYPE html>
-<html>
-	<link rel="stylesheet" href="${baseUrl}/higlass@${higlassVersion}/dist/hglib.css">
-	<script src="${baseUrl}/react@${reactVersion}/umd/react.production.min.js"></script>
-	<script src="${baseUrl}/react-dom@${reactVersion}/umd/react-dom.production.min.js"></script>
-	<script src="${baseUrl}/pixi.js@${pixijsVersion}/dist/browser/pixi.min.js"></script>
-	<script src="${baseUrl}/higlass@${higlassVersion}/dist/hglib.js"></script>
-	<script src="${baseUrl}/gosling.js@${goslingVersion}/dist/gosling.js"></script>
-<body>
-	<div id="vis"></div>
-	<script>
-		gosling.embed(document.getElementById("vis"), JSON.parse(\`${spec}\`))
-	</script>
-</body>
-</html>`;
+	return `
+<head>
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@${reactVersion}",
+          "react-dom": "https://esm.sh/react-dom@${reactVersion}",
+          "pixi": "https://esm.sh/pixi.js@${pixijsVersion}",
+          "higlass": "https://esm.sh/higlass@${higlassVersion}?external=react,react-dom,pixi",
+          "gosling.js": "https://esm.sh/gosling.js@${goslingVersion}?external=react,react-dom,pixi,higlass"
+        }
+      }
+    </script>
+</head>
+<div id="vis"></div>
+<script type="module">
+	import * as gosling from "gosling.js";
+	let api = await gosling.embed(document.getElementById("vis"), JSON.parse(\`${spec}\`))
+	globalThis.api = api;
+</script>
+</html>`
 }
 
 /**
@@ -46,7 +50,6 @@ async function screenshot(spec, opts) {
 	await page.setContent(html(spec), { waitUntil: "networkidle0" });
 	let component = await page.waitForSelector(".gosling-component");
 	let buffer = await component.screenshot(opts);
-
 	await browser.close();
 	return buffer;
 }

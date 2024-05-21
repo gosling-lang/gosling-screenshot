@@ -7,6 +7,6 @@
   "author": "Trevor Manz",
   "license": "MIT",
   "dependencies": {
-    "puppeteer": "^13.5.2"
+    "puppeteer": "^13.7.0"
   }
 }
