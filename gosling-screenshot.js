@@ -10,7 +10,8 @@ function html(spec, {
 	reactVersion = "18",
 	pixijsVersion = "6",
 	higlassVersion = "1.13",
-	goslingVersion = "0.17.0",
+	higlassTextVersion = "0.1.6",
+	goslingVersion = "1",
 } = {}) {
 	return `
 <head>
@@ -21,7 +22,8 @@ function html(spec, {
           "react-dom": "https://esm.sh/react-dom@${reactVersion}",
           "pixi": "https://esm.sh/pixi.js@${pixijsVersion}",
           "higlass": "https://esm.sh/higlass@${higlassVersion}?external=react,react-dom,pixi",
-          "gosling.js": "https://esm.sh/gosling.js@${goslingVersion}?external=react,react-dom,pixi,higlass"
+          "higlass-text": "https://esm.sh/higlass-text@${higlassTextVersion}/es/index.js",
+          "gosling.js": "https://esm.sh/gosling.js@${goslingVersion}?external=react,react-dom,pixi,higlass,higlass-text"
         }
       }
     </script>
