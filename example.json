@@ -4,7 +4,7 @@
   "layout": "linear",
   "arrangement": "vertical",
   "centerRadius": 0.8,
-  "xDomain": {"chromosome": "1", "interval": [1, 3000500]},
+  "xDomain": {"chromosome": "chr1", "interval": [1, 3000500]},
   "views": [
     {
       "tracks": [
@@ -58,7 +58,8 @@
           "row": {"field": "sample", "type": "nominal"},
           "color": {"field": "sample", "type": "nominal", "legend": true},
           "tooltip": [
-            {"field": "position", "type": "genomic", "alt": "Position"},
+            {"field": "start", "type": "genomic", "alt": "Start Position"},
+            {"field": "end", "type": "genomic", "alt": "End Position"},
             {
               "field": "peak",
               "type": "quantitative",
@@ -89,7 +90,8 @@
           "y": {"field": "peak", "type": "quantitative", "grid": true},
           "color": {"field": "sample", "type": "nominal", "legend": true},
           "tooltip": [
-            {"field": "position", "type": "genomic", "alt": "Position"},
+            {"field": "start", "type": "genomic", "alt": "Start Position"},
+            {"field": "end", "type": "genomic", "alt": "End Position"},
             {
               "field": "peak",
               "type": "quantitative",
@@ -158,7 +160,8 @@
           "color": {"field": "sample", "type": "nominal", "legend": true},
           "opacity": {"value": 0.5},
           "tooltip": [
-            {"field": "position", "type": "genomic", "alt": "Position"},
+            {"field": "start", "type": "genomic", "alt": "Start Position"},
+            {"field": "end", "type": "genomic", "alt": "End Position"},
             {
               "field": "peak",
               "type": "quantitative",
@@ -191,7 +194,8 @@
           "color": {"field": "sample", "type": "nominal", "legend": true},
           "opacity": {"value": 0.5},
           "tooltip": [
-            {"field": "position", "type": "genomic", "alt": "Position"},
+            {"field": "start", "type": "genomic", "alt": "Start Position"},
+            {"field": "end", "type": "genomic", "alt": "End Position"},
             {
               "field": "peak",
               "type": "quantitative",
@@ -225,7 +229,8 @@
           "stroke": {"value": "white"},
           "strokeWidth": {"value": 0.5},
           "tooltip": [
-            {"field": "position", "type": "genomic", "alt": "Position"},
+            {"field": "start", "type": "genomic", "alt": "Start Position"},
+            {"field": "end", "type": "genomic", "alt": "End Position"},
             {
               "field": "peak",
               "type": "quantitative",
@@ -296,13 +301,13 @@
           "x": {
             "field": "s1",
             "type": "genomic",
-            "domain": {"chromosome": "1", "interval": [103900000, 104100000]}
+            "domain": {"chromosome": "chr1", "interval": [103900000, 104100000]}
           },
           "xe": {"field": "e1", "type": "genomic"},
           "x1": {
             "field": "s2",
             "type": "genomic",
-            "domain": {"chromosome": "1"}
+            "domain": {"chromosome": "chr1"}
           },
           "x1e": {"field": "e2", "type": "genomic"},
           "color": {"field": "s1", "type": "nominal"},
