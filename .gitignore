@@ -1,6 +1,9 @@
 node_modules
 .pnpm-debug.log
 example.jpeg
+example.png
 .cache
 .DS_Store
 .idea
+input-specs
+output-images
