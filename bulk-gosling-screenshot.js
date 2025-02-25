@@ -1,3 +1,13 @@
+/**
+ * Bulk Gosling Screenshot Generator
+ *
+ * This script is adapted from the original code found in gosling-screenshot.js.
+ * at https://github.com/gosling-lang/gosling-screenshot
+ *
+ * Modifications include support for batch processing of JSON files, keeping naming convention
+ * and output in user-specified image formats.
+ */
+
 import puppeteer from "puppeteer";
 import * as fs from "node:fs/promises";
 import * as path from "path";
@@ -82,7 +92,7 @@ try {
         if (fileStat.isFile() && path.extname(file) === '.json') {
             try {
                 let spec = await fs.readFile(inputFilePath, "utf8");
-                spec = spec.replaceAll('\\', '\\\\');
+                spec = spec.replaceAll('\\', '\\\\');  // escape characters as pure text
                 const outputFilePath = path.join(outputDir, `${path.basename(file, '.json')}.${outputFormat}`);
 
                 await screenshot(spec, { path: outputFilePath, type: outputFormat });

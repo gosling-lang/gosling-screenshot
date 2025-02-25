@@ -5,6 +5,9 @@
   "main": "gosling-screenshot.js",
   "keywords": [],
   "author": "Trevor Manz",
+  "contributors": [
+    {"name":"Huyen N. Nguyen"}
+  ],
   "license": "MIT",
   "dependencies": {
     "icat": "^0.0.2",
