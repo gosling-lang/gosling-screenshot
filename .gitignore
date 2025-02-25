@@ -2,3 +2,5 @@ node_modules
 .pnpm-debug.log
 example.jpeg
 .cache
+.DS_Store
+.idea
