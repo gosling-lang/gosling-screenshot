@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import * as fs from "node:fs/promises";
+import path from "path";
 
 /**
  * @param {string} spec
@@ -56,17 +57,65 @@ async function screenshot(spec, opts) {
 	return buffer;
 }
 
-let input = process.argv[2];
-let output = process.argv[3];
+async function processFiles(inputDir, outputDir, fileType) {
+	try {
+		// Create output directory if it doesn't exist
+		await fs.mkdir(outputDir, { recursive: true });
 
-if (!input || !output) {
+		// Read all files from input directory
+		const files = await fs.readdir(inputDir);
+
+		// Process each JSON file
+		for (const file of files) {
+			if (path.extname(file).toLowerCase() === '.json') {
+				const inputPath = path.join(inputDir, file);
+				const outputPath = path.join(outputDir, `${path.parse(file).name}.${fileType}`);
+
+				// console.log(`Processing ${file}...`); // Uncomment for notifying current processing file
+
+				try {
+					let spec = await fs.readFile(inputPath, "utf8");
+					// to use escape characters as pure text (e.g., separator: '\t') in `.setContent()`
+					spec = spec.replaceAll('\\', '\\\\');
+					await screenshot(spec, { path: outputPath });
+					console.log(`Generated ${outputPath}`);
+				} catch (err) {
+					console.error(`Error processing ${file}:`, err);
+				}
+			}
+		}
+	} catch (err) {
+		console.error("Error:", err);
+		process.exit(1);
+	}
+}
+
+// Command line argument parsing
+const args = process.argv.slice(2);
+
+if (args.length < 2) {
 	console.error(
-		"Usage: node gosling-screenshot.js <input.json> <output.{png,jpeg,webp}>",
+		"Usage: node gosling-screenshot.js <input-directory> <output-directory> [file-type]"
 	);
+	console.error("file-type options: png, jpeg, webp (default: png)");
 	process.exit(1);
 }
 
-let spec = await fs.readFile(input, "utf8");
-// to use escape characters as pure text (e.g., separator: '\t') in `.setContent()`
-spec = spec.replaceAll('\\', '\\\\');
-await screenshot(spec, { path: output });
+const inputDir = args[0];
+const outputDir = args[1];
+const fileType = args[2]?.toLowerCase() || 'png';
+
+// Validate file type
+const validFileTypes = ['png', 'jpeg', 'webp'];
+if (!validFileTypes.includes(fileType)) {
+	console.error(`Invalid file type. Supported types are: ${validFileTypes.join(', ')}`);
+	process.exit(1);
+}
+
+// Process the files
+processFiles(inputDir, outputDir, fileType)
+	.then(() => console.log('Processing complete!'))
+	.catch(err => {
+		console.error('Error:', err);
+		process.exit(1);
+	});
