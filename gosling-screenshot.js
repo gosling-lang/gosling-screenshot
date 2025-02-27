@@ -136,7 +136,7 @@ if (!validFileTypes.includes(fileType)) {
 
 const main = fs.statSync(input).isDirectory()
 	? () => processFiles(input, outputDir, fileType)
-	: () => processFile(input, path.dirname(input), fileType);
+	: () => processFile(input, outputDir ?? path.dirname(input), fileType);
 
 main()
 	.then(() => console.log("Processing complete!"))
