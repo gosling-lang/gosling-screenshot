@@ -58,7 +58,7 @@ async function screenshot(spec, opts) {
 	await page.setContent(html(spec), { waitUntil: "networkidle0" });
 
 	// Explicitly wait for the Gosling component to appear
-	await page.waitForSelector(".gosling-component", { timeout: 20000 });
+	await page.waitForSelector(".gosling-component", { timeout: 10000 });
 	await page.waitForTimeout(5000);  // Extra delay for rendering
 
 	// Capture screenshot
