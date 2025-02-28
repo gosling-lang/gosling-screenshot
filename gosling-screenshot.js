@@ -46,11 +46,22 @@ function html(spec, {
 async function screenshot(spec, opts) {
 	let browser = await puppeteer.launch({
 		headless: true,
-		args: ["--use-gl=swiftshader"], // more consistent rendering of transparent elements
+		args: [
+			"--use-gl=swiftshader",  // more consistent rendering of transparent elements
+			"--disable-web-security",  // disable CORS
+			"--allow-file-access-from-files",  // allow access to local files
+			"--disable-features=IsolateOrigins,site-per-process"  // improve worker communication
+		],
 	});
 
 	let page = await browser.newPage();
 	await page.setContent(html(spec), { waitUntil: "networkidle0" });
+
+	// Explicitly wait for the Gosling component to appear
+	await page.waitForSelector(".gosling-component", { timeout: 10000 });
+	await page.waitForTimeout(5000);  // Extra delay for rendering
+
+	// Capture screenshot
 	let component = await page.waitForSelector(".gosling-component");
 	let buffer = await component.screenshot(opts);
 	await browser.close();
