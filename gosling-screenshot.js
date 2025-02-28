@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
-import * as fs from "node:fs/promises";
-import path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as util from "node:util";
 
 /**
  * @param {string} spec
@@ -35,7 +36,7 @@ function html(spec, {
 	let api = await gosling.embed(document.getElementById("vis"), JSON.parse(\`${spec}\`))
 	globalThis.api = api;
 </script>
-</html>`
+</html>`;
 }
 
 /**
@@ -68,31 +69,39 @@ async function screenshot(spec, opts) {
 	return buffer;
 }
 
+async function processFile(file, outputDir, fileType) {
+	const outputPath = path.join(
+		outputDir,
+		`${path.parse(file).name}.${fileType}`,
+	);
+	try {
+		let spec = await fs.promises.readFile(file, "utf8");
+		// to use escape characters as pure text (e.g., separator: '\t') in `.setContent()`
+		spec = spec.replaceAll("\\", "\\\\");
+		await screenshot(spec, { path: outputPath });
+		console.log(`Generated ${outputPath}`);
+	} catch (err) {
+		console.error(`Error processing ${file}:`, err);
+	}
+}
+
 async function processFiles(inputDir, outputDir, fileType) {
+	if (outputDir === null) {
+		console.error("--outdir required to process a directory.");
+		process.exit(1);
+	}
 	try {
 		// Create output directory if it doesn't exist
-		await fs.mkdir(outputDir, { recursive: true });
+		await fs.promises.mkdir(outputDir, { recursive: true });
 
 		// Read all files from input directory
-		const files = await fs.readdir(inputDir);
+		const files = await fs.promises.readdir(inputDir, { withFileTypes: true });
 
 		// Process each JSON file
 		for (const file of files) {
-			if (path.extname(file).toLowerCase() === '.json') {
-				const inputPath = path.join(inputDir, file);
-				const outputPath = path.join(outputDir, `${path.parse(file).name}.${fileType}`);
-
-				// console.log(`Processing ${file}...`); // Uncomment for notifying current processing file
-
-				try {
-					let spec = await fs.readFile(inputPath, "utf8");
-					// to use escape characters as pure text (e.g., separator: '\t') in `.setContent()`
-					spec = spec.replaceAll('\\', '\\\\');
-					await screenshot(spec, { path: outputPath });
-					console.log(`Generated ${outputPath}`);
-				} catch (err) {
-					console.error(`Error processing ${file}:`, err);
-				}
+			if (file.isFile() && file.name.endsWith(".json")) {
+				const inputPath = path.join(inputDir, file.name);
+				await processFile(inputPath, outputDir, fileType);
 			}
 		}
 	} catch (err) {
@@ -102,31 +111,47 @@ async function processFiles(inputDir, outputDir, fileType) {
 }
 
 // Command line argument parsing
-const args = process.argv.slice(2);
+const args = util.parseArgs({
+	allowPositionals: true,
+	options: {
+		format: { type: "string" }, // --format=png
+		outdir: { type: "string" }, // --outdir=output-images
+	},
+});
 
-if (args.length < 2) {
-	console.error(
-		"Usage: node gosling-screenshot.js <input-directory> <output-directory> [file-type]"
-	);
-	console.error("file-type options: png, jpeg, webp (default: png)");
+if (args.positionals.length !== 1) {
+	console.error(`Usage: node gosling-screenshot.js [options] <input>
+
+Options:
+  --format=[png|jpeg|webp] Output image format (default: png)
+  --outdir=<directory>     Directory to save the output image
+                            (required if input is a directory, optional otherwise)
+
+Arguments:
+  input                    A Gosling specification file (JSON) or a directory of specifications`);
 	process.exit(1);
 }
 
-const inputDir = args[0];
-const outputDir = args[1];
-const fileType = args[2]?.toLowerCase() || 'png';
+const input = path.resolve(args.positionals[0]);
+const fileType = args.values.format ?? "png";
+const outputDir = args.values.outdir ?? null;
 
 // Validate file type
-const validFileTypes = ['png', 'jpeg', 'webp'];
+const validFileTypes = ["png", "jpeg", "webp"];
 if (!validFileTypes.includes(fileType)) {
-	console.error(`Invalid file type. Supported types are: ${validFileTypes.join(', ')}`);
+	console.error(
+		`Invalid file type. Supported types are: ${validFileTypes.join(", ")}`,
+	);
 	process.exit(1);
 }
 
-// Process the files
-processFiles(inputDir, outputDir, fileType)
-	.then(() => console.log('Processing complete!'))
-	.catch(err => {
-		console.error('Error:', err);
+const main = fs.statSync(input).isDirectory()
+	? () => processFiles(input, outputDir, fileType)
+	: () => processFile(input, outputDir ?? path.dirname(input), fileType);
+
+main()
+	.then(() => console.log("Processing complete!"))
+	.catch((err) => {
+		console.error("Error:", err);
 		process.exit(1);
 	});
