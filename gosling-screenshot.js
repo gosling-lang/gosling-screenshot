@@ -10,9 +10,9 @@ import path from "path";
 function html(spec, {
 	reactVersion = "18",
 	pixijsVersion = "6",
-	higlassVersion = "1.13",
+	higlassVersion = "1.13.4",
 	higlassTextVersion = "0.1.6",
-	goslingVersion = "1",
+	goslingVersion = "1.0.5",
 } = {}) {
 	return `
 <head>
@@ -59,7 +59,7 @@ async function screenshot(spec, opts) {
 
 	// Explicitly wait for the Gosling component to appear
 	await page.waitForSelector(".gosling-component", { timeout: 10000 });
-	await page.waitForTimeout(5000);  // Extra delay for rendering
+	// await page.waitForTimeout(10000);  // Extra delay for rendering
 
 	// Capture screenshot
 	let component = await page.waitForSelector(".gosling-component");
